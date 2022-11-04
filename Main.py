@@ -172,8 +172,8 @@ for iter in range(nIterations):
 # Compute heat fluxes
 for i in range(1,nI-1):
     for j in range(1,nJ-1):
-        q[i,j,0] = 
-        q[i,j,1] = 
+        q[i,j,0] = k[i,j]*(T[i+1,j]-T[i-1,j])/(dxe_N[i,j]+dxw_N[i,j])
+        q[i,j,1] = k[i,j]*(T[i,j+1]-T[i,j-1])/(dyn_N[i,j]+dys_N[i,j])
     
 # Plotting section (these are some examples, more plots might be needed)
 # Plot results
