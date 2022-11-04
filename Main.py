@@ -143,6 +143,17 @@ k = 5 * (1 + 100 * xCoords_N / xL)
 S_U = -1.5*dx_CV*dy_CV
 #S_P = 0
 
+#Define Dirichlet boundary conditions
+for i in range(0,nI):
+    j = 0
+    T[i,j] = 15
+    j = nJ-1
+    T[i,j] = 15
+
+for j in range(0, nJ):
+    i = nI-1
+    T[i,j] = 15 * np.cos(2*np.pi*yCoords_N[i,j]/yL)
+
 # Initialize variable matrices and boundary conditions
 # Looping
 for iter in range(nIterations):
@@ -164,10 +175,22 @@ for iter in range(nIterations):
             coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] +\
                  coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
     
+    fig = plt.figure()
+    plt.contour(coeffsT[:,:,1])
+
     ## Compute coefficients corner nodes (one step inside)
     # Solve for T using Gauss-Seidel
-    
+    for i in range(1,nI-1):
+        for j in range(1, nJ-1):
+            RHS = coeffsT[i,j,1] * T[i+1,j] + \
+                coeffsT[i,j,2] * T[i-1,j] + \
+                coeffsT[i,j,3] * T[i,j+1] + \
+                coeffsT[i,j,4] * T[i,j-1] + \
+                S_U[i,j]
+            T[i,j] = RHS / coeffsT[i,j,0] #TODO divides by 0 in undefined places
     # Copy T to boundaries where homegeneous Neumann needs to be applied
+    # bc 4 is Neumann
+
     
     # Compute residuals (taking into account normalization)
     r = 0
