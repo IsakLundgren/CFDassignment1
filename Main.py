@@ -63,7 +63,7 @@ nI = mI + 1                    # number of nodes in the X direction. Nodes
                                # added in the boundaries
 nJ = mJ + 1                    # number of nodes in the Y direction. Nodes 
                                # added in the boundaries
-coeffsT = np.zeros((nI,nJ,5))  # coefficients for temperature
+coeffsT = np.ones((nI,nJ,5))  # coefficients for temperature
                                # E, W, N, S and P
 S_U     = np.zeros((nI,nJ))    # source term for temperature
 S_P     = np.zeros((nI,nJ))    # source term for temperature
@@ -207,8 +207,17 @@ for iter in range(nIterations):
 
             coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
     
+    #################Delete after resolved
+    test = np.zeros((nI,nJ))
+    for i in range(2,nI-2):
+        for j in range(2,nJ-2):
+            if coeffsT[i,j,1] != 0:
+                test[i,j] = 1
+
     fig = plt.figure()
-    plt.contour(coeffsT[:,:,1])
+    plt.pcolormesh(test[:,:]) #TODO cannot have any zeros, time to do stuff
+    plt.colorbar()
+    ####################
 
     ## Compute coefficients corner nodes (one step inside)
     # Solve for T using Gauss-Seidel
@@ -219,7 +228,7 @@ for iter in range(nIterations):
                 coeffsT[i,j,3] * T[i,j+1] + \
                 coeffsT[i,j,4] * T[i,j-1] + \
                 S_U[i,j]
-            T[i,j] = RHS / coeffsT[i,j,0] #TODO divides by 0 in undefined places
+            T[i,j] = RHS / coeffsT[i,j,0]
     # Copy T to boundaries where homegeneous Neumann needs to be applied
     # bc 4 is Neumann
 
