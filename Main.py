@@ -148,11 +148,11 @@ for iter in range(nIterations):
     ## Compute coefficients for inner nodes
     for i in range(2,nI-2):
         for j in range(2,nJ-2):
-            coeffsT[i,j,0] = 
-            coeffsT[i,j,1] = 
-            coeffsT[i,j,2] = 
-            coeffsT[i,j,3] = 
-            coeffsT[i,j,4] =
+            coeffsT[i,j,0] = #ap
+            coeffsT[i,j,1] = #ae
+            coeffsT[i,j,2] = #aw
+            coeffsT[i,j,3] = #an
+            coeffsT[i,j,4] = #as
     
     ## Compute coefficients corner nodes (one step inside)
     # Solve for T using Gauss-Seidel
