@@ -81,6 +81,10 @@ dxe_N     = np.zeros((nI,nJ)) # X distance to east node
 dxw_N     = np.zeros((nI,nJ)) # X distance to west node
 dyn_N     = np.zeros((nI,nJ)) # Y distance to north node
 dys_N     = np.zeros((nI,nJ)) # Y distance to south node
+dxe_F     = np.zeros((nI,nJ)) # X distance to east face
+dxw_F     = np.zeros((nI,nJ)) # X distance to west face
+dyn_F     = np.zeros((nI,nJ)) # Y distance to north face
+dys_F     = np.zeros((nI,nJ)) # Y distance to south face
 dx_CV     = np.zeros((nI,nJ)) # X size of the control volume
 dy_CV     = np.zeros((nI,nJ)) # Y size of the control volume
 if grid_type == 'equidistant':
@@ -107,6 +111,14 @@ if grid_type == 'equidistant':
                 dx_CV[i,j] = xCoords_M[i,j] - xCoords_M[i-1,j]
             if j>0:
                 dy_CV[i,j] = yCoords_M[i,j] - yCoords_M[i,j-1]
+    
+    for i in range(1,nI - 1):
+        for j in range(1,nJ - 1):
+            dxe_F[i,j] = (xCoords_N[i+1,j] - xCoords_N[i,j])/2
+            dxw_F[i,j] = (xCoords_N[i,j] - xCoords_N[i-1,j])/2
+            dyn_F[i,j] = (yCoords_N[i,j+1] - yCoords_N[i,j])/2
+            dys_F[i,j] = (yCoords_N[i,j] - yCoords_N[i,j-1])/2
+                
 elif grid_type == 'non-equidistant':
     rx = 1.15
     ry = 1.15
@@ -125,15 +137,11 @@ for i in range(1,nI - 1):
         dys_N[i,j] = yCoords_N[i,j] - yCoords_N[i,j-1]
 
 # Update conductivity coefficient matrix, k, according to your case
-for i in range(0, nI):
-    for i in range(0, nJ):
-        k[i,j] = 5 * (1 + 100 * xCoords_N[i,j] / xL)
+k = 5 * (1 + 100 * xCoords_N / xL)
 
 # Update source term matrix according to your case
-for i in range(0, nI):
-    for i in range(0, nJ):
-        S_U[i,j] = -1.5*dx_CV[i,j]*dy_CV[i,j]
-        S_P[i,j] = 0
+S_U = -1.5*dx_CV*dy_CV
+S_P = 0
 
 # Initialize variable matrices and boundary conditions
 # Looping
@@ -148,11 +156,13 @@ for iter in range(nIterations):
     ## Compute coefficients for inner nodes
     for i in range(2,nI-2):
         for j in range(2,nJ-2):
-            coeffsT[i,j,0] = #ap
-            coeffsT[i,j,1] = #ae
-            coeffsT[i,j,2] = #aw
-            coeffsT[i,j,3] = #an
-            coeffsT[i,j,4] = #as
+            coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N) * dxe_F) * dy_CV[i,j] / dxe_N#ae
+            coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N) * dxw_F) * dy_CV[i,j] / dxe_N#aw
+            coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N) * dyn_F) * dx_CV[i,j] / dxe_N#an
+            coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N) * dys_F) * dx_CV[i,j] / dxe_N#as
+
+            coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] +\
+                 coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
     
     ## Compute coefficients corner nodes (one step inside)
     # Solve for T using Gauss-Seidel
