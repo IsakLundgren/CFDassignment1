@@ -119,10 +119,10 @@ yCoords_N[:,-1] = yL
 # Fill dxe, dxw, dyn and dys
 for i in range(1,nI - 1):
     for j in range(1,nJ - 1):
-        dxe_N[i,j] = 
-        dxw_N[i,j] = 
-        dyn_N[i,j] = 
-        dys_N[i,j] = 
+        dxe_N[i,j] = xCoords_N[i+1,j] - xCoords_N[i,j]
+        dxw_N[i,j] = xCoords_N[i,j] - xCoords_N[i-1,j]
+        dyn_N[i,j] = yCoords_N[i,j+1] - yCoords_N[i,j]
+        dys_N[i,j] = yCoords_N[i,j] - yCoords_N[i,j-1]
 # Initialize variable matrices and boundary conditions
 # Looping
 for iter in range(nIterations):
