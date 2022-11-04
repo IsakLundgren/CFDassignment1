@@ -123,16 +123,21 @@ for i in range(1,nI - 1):
         dxw_N[i,j] = xCoords_N[i,j] - xCoords_N[i-1,j]
         dyn_N[i,j] = yCoords_N[i,j+1] - yCoords_N[i,j]
         dys_N[i,j] = yCoords_N[i,j] - yCoords_N[i,j-1]
+
+# Update conductivity coefficient matrix, k, according to your case
+for i in range(0, nI):
+    for i in range(0, nJ):
+        k[i,j] = 5 * (1 + 100 * xCoords_N[i,j] / xL)
+
+# Update source term matrix according to your case
+for i in range(0, nI):
+    for i in range(0, nJ):
+        S_U[i,j] = -1.5*dx_CV[i,j]*dy_CV[i,j]
+        S_P[i,j] = 0
+
 # Initialize variable matrices and boundary conditions
 # Looping
 for iter in range(nIterations):
-    
-    # Update conductivity coefficient matrix, k, according to your case
-    for i in range(0, nI):
-        for i in range(0, nJ):
-            k[i,j] = 5 * (1 + 100 * xCoords_N[i,j] / xL)
-
-    # Update source term matrix according to your case
     
     # Compute coeffsT for all the nodes which are not boundary nodes
     ## Compute coefficients for nodes one step inside the domain
