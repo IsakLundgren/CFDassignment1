@@ -47,14 +47,14 @@ import matplotlib.pyplot as plt
 #     the node "P" are displayed.   
 #===================== Inputs =====================
 # Geometric inputs
-mI =  # number of mesh points X direction.
-mJ =  # number of mesh points Y direction.
+mI = 8 # number of mesh points X direction.
+mJ = 7 # number of mesh points Y direction.
 grid_type = 'equidistant' # this sets equidistant mesh sizing or non-equidistant
-xL =  # length of the domain in X direction
-yL =  # length of the domain in Y direction
+xL = 1 # length of the domain in X direction
+yL = 0.5 # length of the domain in Y direction
 # Solver inputs
-nIterations  =  # maximum number of iterations
-resTolerance =  # convergence criteria for residuals each variable
+nIterations  = 30 # maximum number of iterations
+resTolerance = 0.001 # convergence criteria for residuals each variable
 #====================== Code ======================
 # For all the matrices the first input makes reference to the x coordinate
 # and the second input to the y coordinate (check Schematix above)
