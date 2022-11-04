@@ -128,7 +128,10 @@ for i in range(1,nI - 1):
 for iter in range(nIterations):
     
     # Update conductivity coefficient matrix, k, according to your case
-        
+    for i in range(0, nI):
+        for i in range(0, nJ):
+            k[i,j] = 5 * (1 + 100 * xCoords_N[i,j] / xL)
+
     # Update source term matrix according to your case
     
     # Compute coeffsT for all the nodes which are not boundary nodes
