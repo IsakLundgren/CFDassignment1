@@ -161,19 +161,51 @@ for iter in range(nIterations):
     # Compute coeffsT for all the nodes which are not boundary nodes
     ## Compute coefficients for nodes one step inside the domain
     ### First, north and south boundaries
-    #for i in range(2,nI-2):
+    for i in range(2,nI-2):
+        j = 1
+        coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
+        coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
+        coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+        coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+
+        coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
+
+        j = nJ-2
+        coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
+        coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
+        coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+        coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+
+        coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
+
     ### Second, east and west boundaries
-    #for j in range(2,nJ-2):
+    for j in range(2,nJ-2):
+
+        i = 1
+        coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
+        coeffsT[i,j,2] = 0 #aw
+        coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+        coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+
+        coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
+
+        i = nI-2
+        coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
+        coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
+        coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+        coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+
+        coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
+
     ## Compute coefficients for inner nodes
     for i in range(2,nI-2):
         for j in range(2,nJ-2):
             coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
-            coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#aw
-            coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dxe_N[i,j]#an
-            coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dxe_N[i,j]#as
+            coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
+            coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+            coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
 
-            coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] +\
-                 coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
+            coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
     
     fig = plt.figure()
     plt.contour(coeffsT[:,:,1])
