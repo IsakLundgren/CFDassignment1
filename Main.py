@@ -63,7 +63,7 @@ nI = mI + 1                    # number of nodes in the X direction. Nodes
                                # added in the boundaries
 nJ = mJ + 1                    # number of nodes in the Y direction. Nodes 
                                # added in the boundaries
-coeffsT = np.ones((nI,nJ,5))  # coefficients for temperature
+coeffsT = np.zeros((nI,nJ,5))  # coefficients for temperature
                                # E, W, N, S and P
 S_U     = np.zeros((nI,nJ))    # source term for temperature
 S_P     = np.zeros((nI,nJ))    # source term for temperature
@@ -264,6 +264,7 @@ for iter in range(nIterations):
     #  Check convergence
     if resTolerance>residuals[-1]:
         break
+
 # Compute heat fluxes
 for i in range(1,nI-1):
     for j in range(1,nJ-1):
@@ -275,6 +276,14 @@ for i in range(1,nI-1):
 plt.figure()
 # Plot mesh
 plt.subplot(2,2,1)
+#TODO check requirements of presentation
+#plt.scatter(xCoords_M, yCoords_M, marker=".", color="b", label='meshgrid')
+for i in range(0,mI):
+    plt.plot(xCoords_M[i,[0,-1]],yCoords_M[i,[0,-1]], 'k-')
+for j in range(0,mJ):
+    plt.plot(xCoords_M[[0,-1],j],yCoords_M[[0,-1],j], 'k-')
+plt.scatter(xCoords_N, yCoords_N, marker=".", color="r", label='nodes')
+#plt.legend()
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.title('Computational mesh')
