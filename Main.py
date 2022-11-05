@@ -252,7 +252,7 @@ for iter in range(nIterations):
             T[i,j] = RHS / coeffsT[i,j,0]
     # Copy T to boundaries where homegeneous Neumann needs to be applied
     # bc 4 is Neumann
-
+    T[0,:] = T[1,:]
     
     # Compute residuals (taking into account normalization)
     r = 0
@@ -301,6 +301,7 @@ plt.ylabel('y [m]')
 plt.axis('equal')
 # Plot residual convergence
 plt.subplot(2,2,3)
+plt.plot(r)
 plt.title('Residual convergence')
 plt.xlabel('iterations')
 plt.ylabel('residuals [-]')
