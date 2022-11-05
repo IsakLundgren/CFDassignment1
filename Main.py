@@ -268,8 +268,8 @@ for iter in range(nIterations):
 # Compute heat fluxes
 for i in range(1,nI-1):
     for j in range(1,nJ-1):
-        q[i,j,0] = k[i,j]*(T[i+1,j]-T[i-1,j])/(dxe_N[i,j]+dxw_N[i,j])
-        q[i,j,1] = k[i,j]*(T[i,j+1]-T[i,j-1])/(dyn_N[i,j]+dys_N[i,j])
+        q[i,j,0] = -k[i,j]*(T[i+1,j]-T[i-1,j])/(dxe_N[i,j]+dxw_N[i,j])
+        q[i,j,1] = -k[i,j]*(T[i,j+1]-T[i,j-1])/(dyn_N[i,j]+dys_N[i,j])
     
 # Plotting section (these are some examples, more plots might be needed)
 # Plot results
@@ -290,6 +290,11 @@ plt.title('Computational mesh')
 plt.axis('equal')
 # Plot temperature contour
 plt.subplot(2,2,2)
+plot_type = 'smooth'
+if plot_type == 'rough':
+    plt.pcolormesh(xCoords_N, yCoords_N, T)
+elif plot_type == 'smooth':
+    plt.contourf(xCoords_N, yCoords_N, T)
 plt.title('Temperature [ºC]')
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
@@ -302,6 +307,7 @@ plt.ylabel('residuals [-]')
 plt.title('Residual')
 # Plot heat fluxes
 plt.subplot(2,2,4)
+plt.quiver(xCoords_N,yCoords_N,q[:,:,0],q[:,:,1])
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.title('Heat flux')
