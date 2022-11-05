@@ -206,18 +206,6 @@ for iter in range(nIterations):
             coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
 
             coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
-    
-    #################Delete after resolved
-    test = np.zeros((nI,nJ))
-    for i in range(2,nI-2):
-        for j in range(2,nJ-2):
-            if coeffsT[i,j,1] != 0:
-                test[i,j] = 1
-
-    fig = plt.figure()
-    plt.pcolormesh(test[:,:]) #TODO cannot have any zeros, time to do stuff
-    plt.colorbar()
-    ####################
 
     ## Compute coefficients corner nodes (one step inside)
     # Solve for T using Gauss-Seidel
