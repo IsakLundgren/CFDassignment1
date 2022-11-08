@@ -208,7 +208,6 @@ for iter in range(nIterations):
             coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     ## Compute coefficients corner nodes (one step inside)
-    #TODO ask if we will be judged on "Ugly code"
     i=1
     j=1
     coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
@@ -256,6 +255,16 @@ for iter in range(nIterations):
     
     # Compute residuals (taking into account normalization)
     r = 0
+    R = 0
+    for i in range(1,nI-1):
+        for j in range(1,nJ-1):
+            R = R + np.abs(coeffsT[i,j,1] * T[i+1,j] + \
+                coeffsT[i,j,2] * T[i-1,j] +\
+                coeffsT[i,j,3] * T[i,j+1] +\
+                coeffsT[i,j,4] * T[i,j-1] +\
+                S_U[i,j] -\
+                coeffsT[i,j,0] * T[i,j])
+    r = R #TODO not normalized yet
     
     residuals.append(r)
     
