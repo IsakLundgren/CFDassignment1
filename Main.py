@@ -47,13 +47,13 @@ import matplotlib.pyplot as plt
 #     the node "P" are displayed.   
 #===================== Inputs =====================
 # Geometric inputs
-mI = 8 # number of mesh points X direction.
-mJ = 7 # number of mesh points Y direction.
+mI = 20 # number of mesh points X direction.
+mJ = 20 # number of mesh points Y direction.
 grid_type = 'equidistant' # this sets equidistant mesh sizing or non-equidistant
 xL = 1 # length of the domain in X direction
 yL = 0.5 # length of the domain in Y direction
 # Solver inputs
-nIterations  = 30 # maximum number of iterations
+nIterations  = 1000 # maximum number of iterations
 resTolerance = 0.001 # convergence criteria for residuals each variable
 #====================== Code ======================
 # For all the matrices the first input makes reference to the x coordinate
@@ -296,6 +296,19 @@ for i in range(1,nI-1):
     for j in range(1,nJ-1):
         q[i,j,0] = -k[i,j]*(T[i+1,j]-T[i-1,j])/(dxe_N[i,j]+dxw_N[i,j])
         q[i,j,1] = -k[i,j]*(T[i,j+1]-T[i,j-1])/(dyn_N[i,j]+dys_N[i,j])
+
+#Compute heat fluxes on boundaries
+#TODO fix north, east boundary
+for i in range(1,nI-1):
+    j = 0
+    q[i,j,1] = -k[i,j]*(T[i,j+1]-T[i,j])/(dys_N[i,j+1])
+    j = nJ-1
+    q[i,j,1] = -k[i,j]*(T[i,j]-T[i,j-1])/(dyn_N[i,j-1])
+
+for j in range(1,nJ-1):
+    i = nI-1
+    q[i,j,0] = -k[i,j]*(T[i,j]-T[i-1,j])/(dxe_N[i-1,j])
+
     
 # Plotting section (these are some examples, more plots might be needed)
 # Plot results
