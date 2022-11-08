@@ -47,13 +47,13 @@ import matplotlib.pyplot as plt
 #     the node "P" are displayed.   
 #===================== Inputs =====================
 # Geometric inputs
-mI = 20 # number of mesh points X direction.
-mJ = 20 # number of mesh points Y direction.
+mI = 60 # number of mesh points X direction.
+mJ = 30 # number of mesh points Y direction.
 grid_type = 'equidistant' # this sets equidistant mesh sizing or non-equidistant
 xL = 1 # length of the domain in X direction
 yL = 0.5 # length of the domain in Y direction
 # Solver inputs
-nIterations  = 1000 # maximum number of iterations
+nIterations  = 2000 # maximum number of iterations
 resTolerance = 0.001 # convergence criteria for residuals each variable
 #====================== Code ======================
 # For all the matrices the first input makes reference to the x coordinate
@@ -308,6 +308,7 @@ for i in range(1,nI-1):
 for j in range(1,nJ-1):
     i = nI-1
     q[i,j,0] = -k[i,j]*(T[i,j]-T[i-1,j])/(dxe_N[i-1,j])
+    q[i,j,1] = -k[i,j]*(T[i,j+1]-T[i,j-1])/(dyn_N[i-1,j]+dys_N[i-1,j])
 
     
 # Plotting section (these are some examples, more plots might be needed)
