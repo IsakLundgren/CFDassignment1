@@ -140,7 +140,9 @@ for i in range(1,nI - 1):
 k = 5 * (1 + 100 * xCoords_N / xL)
 
 # Update source term matrix according to your case
-S_U = -1.5*dx_CV*dy_CV
+for i in range(1, nI-1):
+    for j in range(1, nJ-1):
+        S_U[i,j] = 100000
 #S_P = 0
 
 #Define Dirichlet boundary conditions
