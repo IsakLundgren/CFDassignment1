@@ -253,6 +253,23 @@ for iter in range(nIterations):
     # bc 4 is Neumann
     T[0,:] = T[1,:]
     
+    #Compute fluxes on boundaries
+    flux1 = 0 #Heat flux on face 1
+    flux2 = 0 #Heat flux on face 2
+    flux3 = 0 #Heat flux on face 3
+    flux4 = 0 #Heat flux on face 4
+    for i in range(1,nI-1): #Integrate over b1, 3
+        j = 1
+        flux1 = flux1 + np.abs(-k[i,j-1]*(T[i,j]-T[i,j-1])/(dys_N[i,j])) * dx_CV[i,j]
+        j = nJ-2
+        flux3 = flux3 + np.abs(-k[i,j+1]*(T[i,j+1]-T[i,j])/(dyn_N[i,j])) * dx_CV[i,j]
+
+    for j in range(1,nJ-1): #Integrate over b1, 3
+        i = nI-2
+        flux2 = flux2 + np.abs(-k[i+1,j]*(T[i+1,j]-T[i,j])/(dxe_N[i,j])) * dy_CV[i,j]
+
+    Fluxtot = flux1 + flux2 + flux3 + flux4
+
     # Compute residuals (taking into account normalization)
     r = 0
     R = 0
@@ -264,7 +281,7 @@ for iter in range(nIterations):
                 coeffsT[i,j,4] * T[i,j-1] +\
                 S_U[i,j] -\
                 coeffsT[i,j,0] * T[i,j])
-    r = R #TODO not normalized yet
+    r = R / Fluxtot
     
     residuals.append(r)
     
@@ -310,7 +327,7 @@ plt.ylabel('y [m]')
 plt.axis('equal')
 # Plot residual convergence
 plt.subplot(2,2,3)
-plt.plot(r)
+plt.plot(residuals)
 plt.title('Residual convergence')
 plt.xlabel('iterations')
 plt.ylabel('residuals [-]')
