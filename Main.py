@@ -130,17 +130,17 @@ elif grid_type == 'non-equidistant':
     sx = ((1 - (1/rx)**(inflX+1))/(1-1/rx)-1) #Geometric sum of inflation layers x
     sy = ((1 - (1/ry)**(inflY+1))/(1-1/ry)-1) #Geometric sum of inflation layers y
     fx = nI - 2 - inflX #Nodes outside of inflation region x
-    fy = nJ - 2 - inflY #Nodes outside of inflation region y
+    fy = nJ - 2 - 2 * inflY #Nodes outside of inflation region y
 
     dx = xL / (fx + sx)
-    dy = yL / (fy + sy)
+    dy = yL / (fy + 2 * sy)
 
     # Fill the necessary code to generate a non equidistant grid and
     # Fill the coordinates
     for i in range(mI):
         for j in range(mJ):
             # For the mesh points
-            if i <mI-inflX:
+            if i < mI - inflX:
                 xCoords_M[i,j] = i*dx
             else:
                 xCoords_M[i,j] = dx * (1/rx)**(i-mI+inflX+1) + xCoords_M[i-1,j]
@@ -149,12 +149,10 @@ elif grid_type == 'non-equidistant':
                 yCoords_M[i,j] = j*dy
             elif j <= inflY:
                 yCoords_M[i,j] = dy * (1/ry)**(inflY-j+1) + yCoords_M[i,j-1]
-            # elif j >= nJ - inflY:
-            #     xCoords_M[i,j] = i*dx
-            #     yCoords_M[i,j] = j*dy * (1/ry)**(inflY-j+1)
-            
-            else:
+            elif j < mJ - inflY:
                 yCoords_M[i,j] = (j - inflY)*dy + yCoords_M[i,inflY]
+            else:
+                yCoords_M[i,j] = dy * (1/ry)**(j-mJ+inflY+1) + yCoords_M[i,j-1]
 
             # For the nodes
             if i > 0:
