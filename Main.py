@@ -124,8 +124,8 @@ elif grid_type == 'non-equidistant':
     rx = 1.15
     ry = 1.15
 
-    inflX = 5
-    inflY = 5
+    inflX = 10
+    inflY = 10
     
     sx = ((1 - (1/rx)**(inflX+1))/(1-1/rx)-1) #Geometric sum of inflation layers x
     sy = ((1 - (1/ry)**(inflY+1))/(1-1/ry)-1) #Geometric sum of inflation layers y
@@ -140,19 +140,20 @@ elif grid_type == 'non-equidistant':
     for i in range(mI):
         for j in range(mJ):
             # For the mesh points
-            if j == 0:
+            if i <mI-inflX:
                 xCoords_M[i,j] = i*dx
+            else:
+                xCoords_M[i,j] = dx * (1/rx)**(i-mI+inflX+1) + xCoords_M[i-1,j]
+
+            if j == 0:
                 yCoords_M[i,j] = j*dy
             elif j <= inflY:
-                xCoords_M[i,j] = i*dx
                 yCoords_M[i,j] = dy * (1/ry)**(inflY-j+1) + yCoords_M[i,j-1]
-
             # elif j >= nJ - inflY:
             #     xCoords_M[i,j] = i*dx
             #     yCoords_M[i,j] = j*dy * (1/ry)**(inflY-j+1)
             
             else:
-                xCoords_M[i,j] = i*dx
                 yCoords_M[i,j] = (j - inflY)*dy + yCoords_M[i,inflY]
 
             # For the nodes
