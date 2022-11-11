@@ -47,14 +47,14 @@ import matplotlib.pyplot as plt
 #     the node "P" are displayed.   
 #===================== Inputs =====================
 # Geometric inputs
-mI = 20 # number of mesh points X direction.
-mJ = 20 # number of mesh points Y direction.
-grid_type = 'equidistant' # this sets equidistant mesh sizing or non-equidistant
+mI = 60 # number of mesh points X direction.
+mJ = 40 # number of mesh points Y direction.
+grid_type = 'non-equidistant' # this sets equidistant mesh sizing or non-equidistant
 xL = 1 # length of the domain in X direction
 yL = 0.5 # length of the domain in Y direction
 # Solver inputs
 nIterations  = 2000 # maximum number of iterations
-resTolerance = 0.001 # convergence criteria for residuals each variable
+resTolerance = 0.0001 # convergence criteria for residuals each variable
 #====================== Code ======================
 # For all the matrices the first input makes reference to the x coordinate
 # and the second input to the y coordinate (check Schematix above)
@@ -121,10 +121,10 @@ if grid_type == 'equidistant':
                 
 elif grid_type == 'non-equidistant':
     #One inflation region in x-dir, 2 in y-dir
-    rx = 1.01
-    ry = 1.01
+    rx = 1.15
+    ry = 1.15
 
-    inflX = 10
+    inflX = 20
     inflY = 10
     
     sx = ((1 - (1/rx)**(inflX+1))/(1-1/rx)-1) #Geometric sum of inflation layers x
@@ -214,14 +214,14 @@ for iter in range(nIterations):
         coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
         coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
         coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
-        coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+        coeffsT[i,j,4] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j]#as
 
         coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
         j = nJ-2
         coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
         coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
-        coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+        coeffsT[i,j,3] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]#an
         coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
 
         coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
@@ -238,7 +238,7 @@ for iter in range(nIterations):
         coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
         i = nI-2
-        coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
+        coeffsT[i,j,1] = k[i+1,j] * dy_CV[i,j] / dxe_N[i,j]#ae
         coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
         coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
         coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
@@ -261,30 +261,30 @@ for iter in range(nIterations):
     coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
     coeffsT[i,j,2] = 0#aw
     coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
-    coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+    coeffsT[i,j,4] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j]#as
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     i=1
     j=nJ-2
     coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
     coeffsT[i,j,2] = 0#aw
-    coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+    coeffsT[i,j,3] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]#an
     coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     i=nI-2
     j=1
-    coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
+    coeffsT[i,j,1] = k[i,j+1] * dy_CV[i,j] / dxe_N[i,j]#ae
     coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
     coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
-    coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+    coeffsT[i,j,4] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j]#as
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     i=nI-2
     j=nJ-2
-    coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
+    coeffsT[i,j,1] = k[i,j+1] * dy_CV[i,j] / dxe_N[i,j]#ae
     coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
-    coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
+    coeffsT[i,j,3] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]#an
     coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
@@ -370,7 +370,7 @@ for i in range(0,mI):
     plt.plot(xCoords_M[i,[0,-1]],yCoords_M[i,[0,-1]], 'k-')
 for j in range(0,mJ):
     plt.plot(xCoords_M[[0,-1],j],yCoords_M[[0,-1],j], 'k-')
-plt.scatter(xCoords_N, yCoords_N, marker=".", color="r", label='nodes')
+plt.scatter(xCoords_N, yCoords_N, marker=".", color="r", label='nodes', s=1)
 #plt.legend()
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
