@@ -49,7 +49,7 @@ import matplotlib.pyplot as plt
 # Geometric inputs
 mI = 20 # number of mesh points X direction.
 mJ = 20 # number of mesh points Y direction.
-grid_type = 'non-equidistant' # this sets equidistant mesh sizing or non-equidistant
+grid_type = 'equidistant' # this sets equidistant mesh sizing or non-equidistant
 xL = 1 # length of the domain in X direction
 yL = 0.5 # length of the domain in Y direction
 # Solver inputs
@@ -121,8 +121,8 @@ if grid_type == 'equidistant':
                 
 elif grid_type == 'non-equidistant':
     #One inflation region in x-dir, 2 in y-dir
-    rx = 1.15
-    ry = 1.15
+    rx = 1.01
+    ry = 1.01
 
     inflX = 10
     inflY = 10
@@ -135,23 +135,21 @@ elif grid_type == 'non-equidistant':
     dx = xL / (fx + sx)
     dy = yL / (fy + 2 * sy)
 
-    # Fill the necessary code to generate a non equidistant grid and
-    # Fill the coordinates
     for i in range(mI):
         for j in range(mJ):
             # For the mesh points
-            if i < mI - inflX:
+            if i < mI - inflX: #Inflation layer x
                 xCoords_M[i,j] = i*dx
             else:
                 xCoords_M[i,j] = dx * (1/rx)**(i-mI+inflX+1) + xCoords_M[i-1,j]
 
-            if j == 0:
+            if j == 0: #Special case to fix yCoords_M[i,j-1], where j is 1
                 yCoords_M[i,j] = j*dy
-            elif j <= inflY:
+            elif j <= inflY: #Inflation layer y
                 yCoords_M[i,j] = dy * (1/ry)**(inflY-j+1) + yCoords_M[i,j-1]
             elif j < mJ - inflY:
                 yCoords_M[i,j] = (j - inflY)*dy + yCoords_M[i,inflY]
-            else:
+            else: #Inflation layer x
                 yCoords_M[i,j] = dy * (1/ry)**(j-mJ+inflY+1) + yCoords_M[i,j-1]
 
             # For the nodes
@@ -168,8 +166,13 @@ elif grid_type == 'non-equidistant':
                 dx_CV[i,j] = xCoords_M[i,j] - xCoords_M[i-1,j]
             if j>0:
                 dy_CV[i,j] = yCoords_M[i,j] - yCoords_M[i,j-1]
-    
-    # fill the needed matrixes for the geometrical quantities
+
+#for i in range(1,nI - 1):
+    #for j in range(1,nJ - 1):
+        #dxe_F[i,j] = xCoords_M[i,j] - xCoords_N[i,j]
+        #dxw_F[i,j] = xCoords_N[i,j] - xCoords_M[i-1,j]
+        #dyn_F[i,j] = yCoords_M[i,j] - yCoords_N[i,j]
+        #dys_F[i,j] = yCoords_N[i,j] - yCoords_M[i,j-1]
     
 xCoords_N[-1,:] = xL
 yCoords_N[:,-1] = yL
@@ -326,7 +329,7 @@ for iter in range(nIterations):
                 coeffsT[i,j,4] * T[i,j-1] +\
                 S_U[i,j] -\
                 coeffsT[i,j,0] * T[i,j])
-    r = R / Fluxtot * 0
+    r = R / Fluxtot
     
     residuals.append(r)
     
