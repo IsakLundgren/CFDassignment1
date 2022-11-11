@@ -167,12 +167,12 @@ elif grid_type == 'non-equidistant':
             if j>0:
                 dy_CV[i,j] = yCoords_M[i,j] - yCoords_M[i,j-1]
 
-#for i in range(1,nI - 1):
-    #for j in range(1,nJ - 1):
-        #dxe_F[i,j] = xCoords_M[i,j] - xCoords_N[i,j]
-        #dxw_F[i,j] = xCoords_N[i,j] - xCoords_M[i-1,j]
-        #dyn_F[i,j] = yCoords_M[i,j] - yCoords_N[i,j]
-        #dys_F[i,j] = yCoords_N[i,j] - yCoords_M[i,j-1]
+for i in range(1,nI - 1):
+    for j in range(1,nJ - 1):
+        dxe_F[i,j] = xCoords_M[i,j] - xCoords_N[i,j]
+        dxw_F[i,j] = xCoords_N[i,j] - xCoords_M[i-1,j]
+        dyn_F[i,j] = yCoords_M[i,j] - yCoords_N[i,j]
+        dys_F[i,j] = yCoords_N[i,j] - yCoords_M[i,j-1]
     
 xCoords_N[-1,:] = xL
 yCoords_N[:,-1] = yL
@@ -382,8 +382,9 @@ plot_type = 'smooth'
 if plot_type == 'rough':
     plt.pcolormesh(xCoords_N, yCoords_N, T)
 elif plot_type == 'smooth':
-    plt.contourf(xCoords_N, yCoords_N, T)
+    plt.contourf(xCoords_N, yCoords_N, T, 50)
 plt.title('Temperature [ºC]')
+plt.colorbar()
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.axis('equal')
