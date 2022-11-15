@@ -47,9 +47,9 @@ import matplotlib.pyplot as plt
 #     the node "P" are displayed.   
 #===================== Inputs =====================
 # Geometric inputs
-mI = 60 # number of mesh points X direction.
-mJ = 40 # number of mesh points Y direction.
-grid_type = 'non-equidistant' # this sets equidistant mesh sizing or non-equidistant
+mI = 20 # number of mesh points X direction.
+mJ = 20 # number of mesh points Y direction.
+grid_type = 'equidistant' # this sets equidistant mesh sizing or non-equidistant
 xL = 1 # length of the domain in X direction
 yL = 0.5 # length of the domain in Y direction
 # Solver inputs
@@ -124,8 +124,8 @@ elif grid_type == 'non-equidistant':
     rx = 1.15
     ry = 1.15
 
-    inflX = 20
-    inflY = 10
+    inflX = 5
+    inflY = 5
     
     sx = ((1 - (1/rx)**(inflX+1))/(1-1/rx)-1) #Geometric sum of inflation layers x
     sy = ((1 - (1/ry)**(inflY+1))/(1-1/ry)-1) #Geometric sum of inflation layers y
@@ -191,7 +191,18 @@ k = 5 * (1 + 100 * xCoords_N / xL)
 S_U = -1.5*dx_CV*dy_CV
 #S_P = 0
 
-#Define Dirichlet boundary conditions
+# #Define Dirichlet boundary conditions
+# for i in range(0,nI):
+#     j = 0
+#     T[i,j] = 15
+#     j = nJ-1
+#     T[i,j] = 15
+
+# for j in range(0, nJ):
+#     i = nI-1
+#     T[i,j] = 15 * np.cos(2*np.pi*yCoords_N[i,j]/yL)
+
+#Adding another Dirchlet boundary condition at i = 0
 for i in range(0,nI):
     j = 0
     T[i,j] = 15
@@ -199,8 +210,10 @@ for i in range(0,nI):
     T[i,j] = 15
 
 for j in range(0, nJ):
+    i = 0
+    T[i,j] = 15 * np.cos(-2*np.pi*yCoords_N[i,j]/yL) + 15 * np.arctan(np.pi * 1/ T[i,j])
     i = nI-1
-    T[i,j] = 15 * np.cos(2*np.pi*yCoords_N[i,j]/yL)
+    T[i,j] = 15 * np.cos(2*np.pi*yCoords_N[i,j]/yL)    
 
 # Initialize variable matrices and boundary conditions
 # Looping
@@ -231,7 +244,8 @@ for iter in range(nIterations):
 
         i = 1
         coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
-        coeffsT[i,j,2] = 0 #aw
+        # coeffsT[i,j,2] = 0 #aw
+        coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
         coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
         coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
 
@@ -259,7 +273,8 @@ for iter in range(nIterations):
     i=1
     j=1
     coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
-    coeffsT[i,j,2] = 0#aw
+    # coeffsT[i,j,2] = 0#aw
+    coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j] #aw
     coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
     coeffsT[i,j,4] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j]#as
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
@@ -267,7 +282,8 @@ for iter in range(nIterations):
     i=1
     j=nJ-2
     coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
-    coeffsT[i,j,2] = 0#aw
+    # coeffsT[i,j,2] = 0#aw
+    coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
     coeffsT[i,j,3] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]#an
     coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
@@ -299,7 +315,7 @@ for iter in range(nIterations):
             T[i,j] = RHS / coeffsT[i,j,0]
     # Copy T to boundaries where homegeneous Neumann needs to be applied
     # bc 4 is Neumann
-    T[0,:] = T[1,:]
+    # T[0,:] = T[1,:]
     
     #Compute fluxes on boundaries
     flux1 = 0 #Heat flux on face 1
@@ -364,14 +380,14 @@ for j in range(1,nJ-1):
 plt.figure()
 # Plot mesh
 plt.subplot(2,2,1)
-#TODO check requirements of presentation
-#plt.scatter(xCoords_M, yCoords_M, marker=".", color="b", label='meshgrid')
+# TODO check requirements of presentation
+plt.scatter(xCoords_M, yCoords_M, marker=".", color="r", label='meshgrid')
 for i in range(0,mI):
     plt.plot(xCoords_M[i,[0,-1]],yCoords_M[i,[0,-1]], 'k-')
 for j in range(0,mJ):
     plt.plot(xCoords_M[[0,-1],j],yCoords_M[[0,-1],j], 'k-')
 plt.scatter(xCoords_N, yCoords_N, marker=".", color="r", label='nodes', s=1)
-#plt.legend()
+# plt.legend()
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.title('Computational mesh')
@@ -388,14 +404,14 @@ plt.colorbar()
 plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.axis('equal')
-# Plot residual convergence
+# # Plot residual convergence
 plt.subplot(2,2,3)
 plt.plot(residuals)
 plt.title('Residual convergence')
 plt.xlabel('iterations')
 plt.ylabel('residuals [-]')
 plt.title('Residual')
-# Plot heat fluxes
+# # Plot heat fluxes
 plt.subplot(2,2,4)
 plt.quiver(xCoords_N,yCoords_N,q[:,:,0],q[:,:,1])
 plt.xlabel('x [m]')
