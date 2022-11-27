@@ -47,7 +47,7 @@ import matplotlib.pyplot as plt
 #     the node "P" are displayed.   
 #===================== Inputs =====================
 # Geometric inputs
-mI = 60 # number of mesh points X direction.
+mI = 40 # number of mesh points X direction.
 mJ = 40 # number of mesh points Y direction.
 grid_type = 'non-equidistant' # this sets equidistant mesh sizing or non-equidistant
 xL = 1 # length of the domain in X direction
@@ -124,7 +124,7 @@ elif grid_type == 'non-equidistant':
     rx = 1.15
     ry = 1.15
 
-    inflX = 20
+    inflX = 10
     inflY = 10
     
     sx = ((1 - (1/rx)**(inflX+1))/(1-1/rx)-1) #Geometric sum of inflation layers x
@@ -189,6 +189,7 @@ k = 5 * (1 + 100 * xCoords_N / xL)
 
 # Update source term matrix according to your case
 S_U = -1.5*dx_CV*dy_CV
+S_U_bd = np.zeros((nI,nJ))
 #S_P = 0
 
 #Define Dirichlet boundary conditions
@@ -214,15 +215,23 @@ for iter in range(nIterations):
         coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
         coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
         coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
-        coeffsT[i,j,4] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j]#as
+        coeffsT[i,j,4] = 0#as
+        
+        #Dirichlet
+        S_U_bd[i,j] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j] * T[i,j-1]
+        S_P[i,j] = -k[i,j-1] * dx_CV[i,j] / dys_N[i,j]
 
         coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
         j = nJ-2
         coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
         coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
-        coeffsT[i,j,3] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]#an
+        coeffsT[i,j,3] = 0#an
         coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+
+        #Dirichlet
+        S_U_bd[i,j] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j] * T[i,j+1]
+        S_P[i,j] = -k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]
 
         coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
@@ -238,10 +247,14 @@ for iter in range(nIterations):
         coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
         i = nI-2
-        coeffsT[i,j,1] = k[i+1,j] * dy_CV[i,j] / dxe_N[i,j]#ae
+        coeffsT[i,j,1] = 0#ae
         coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
         coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
         coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+
+        #Dirichlet
+        S_U_bd[i,j] = k[i+1,j] * dy_CV[i,j] / dxe_N[i,j] * T[i+1,j]
+        S_P[i,j] = -k[i+1,j] * dy_CV[i,j] / dxe_N[i,j]
 
         coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
@@ -261,31 +274,51 @@ for iter in range(nIterations):
     coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
     coeffsT[i,j,2] = 0#aw
     coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
-    coeffsT[i,j,4] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j]#as
+    coeffsT[i,j,4] = 0#as
+     
+    #Dirichlet for south
+    S_U_bd[i,j] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j] * T[i,j-1]
+    S_P[i,j] = -k[i,j-1] * dx_CV[i,j] / dys_N[i,j]    
+
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     i=1
     j=nJ-2
     coeffsT[i,j,1] = (k[i,j] + (k[i+1,j]-k[i,j] / dxe_N[i,j]) * dxe_F[i,j]) * dy_CV[i,j] / dxe_N[i,j]#ae
     coeffsT[i,j,2] = 0#aw
-    coeffsT[i,j,3] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]#an
+    coeffsT[i,j,3] = 0#an
     coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+     
+    #Dirichlet for north
+    S_U_bd[i,j] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j] * T[i,j+1]
+    S_P[i,j] = -k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]
+
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     i=nI-2
     j=1
-    coeffsT[i,j,1] = k[i,j+1] * dy_CV[i,j] / dxe_N[i,j]#ae
+    coeffsT[i,j,1] = 0#ae
     coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
     coeffsT[i,j,3] = (k[i,j] + (k[i,j+1]-k[i,j] / dyn_N[i,j]) * dyn_F[i,j]) * dx_CV[i,j] / dyn_N[i,j]#an
-    coeffsT[i,j,4] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j]#as
+    coeffsT[i,j,4] = 0#as
+     
+    #Dirichlet for south and east
+    S_U_bd[i,j] = k[i,j-1] * dx_CV[i,j] / dys_N[i,j] * T[i,j-1] + k[i+1,j] * dy_CV[i,j] / dxe_N[i,j] * T[i+1,j]
+    S_P[i,j] = -k[i,j-1] * dx_CV[i,j] / dys_N[i,j] - k[i+1,j] * dy_CV[i,j] / dxe_N[i,j]
+
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     i=nI-2
     j=nJ-2
-    coeffsT[i,j,1] = k[i,j+1] * dy_CV[i,j] / dxe_N[i,j]#ae
+    coeffsT[i,j,1] = 0#ae
     coeffsT[i,j,2] = (k[i,j] + (k[i,j]-k[i-1,j] / dxw_N[i,j]) * dxw_F[i,j]) * dy_CV[i,j] / dxw_N[i,j]#aw
-    coeffsT[i,j,3] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j]#an
+    coeffsT[i,j,3] = 0#an
     coeffsT[i,j,4] = (k[i,j] + (k[i,j]-k[i,j-1] / dys_N[i,j]) * dys_F[i,j]) * dx_CV[i,j] / dys_N[i,j]#as
+     
+    #Dirichlet for north and east
+    S_U_bd[i,j] = k[i,j+1] * dx_CV[i,j] / dyn_N[i,j] * T[i,j+1] + k[i+1,j] * dy_CV[i,j] / dxe_N[i,j] * T[i+1,j]
+    S_P[i,j] = -k[i,j+1] * dx_CV[i,j] / dyn_N[i,j] - k[i+1,j] * dy_CV[i,j] / dxe_N[i,j]
+
     coeffsT[i,j,0] = coeffsT[i,j,1] + coeffsT[i,j,2] + coeffsT[i,j,3] + coeffsT[i,j,4] - S_P[i,j]#ap
 
     # Solve for T using Gauss-Seidel
@@ -295,7 +328,7 @@ for iter in range(nIterations):
                 coeffsT[i,j,2] * T[i-1,j] + \
                 coeffsT[i,j,3] * T[i,j+1] + \
                 coeffsT[i,j,4] * T[i,j-1] + \
-                S_U[i,j]
+                S_U[i,j] + S_U_bd[i,j]
             T[i,j] = RHS / coeffsT[i,j,0]
     # Copy T to boundaries where homegeneous Neumann needs to be applied
     # bc 4 is Neumann
@@ -327,7 +360,7 @@ for iter in range(nIterations):
                 coeffsT[i,j,2] * T[i-1,j] +\
                 coeffsT[i,j,3] * T[i,j+1] +\
                 coeffsT[i,j,4] * T[i,j-1] +\
-                S_U[i,j] -\
+                S_U[i,j] + S_U_bd[i,j] -\
                 coeffsT[i,j,0] * T[i,j])
     r = R / Fluxtot
     
